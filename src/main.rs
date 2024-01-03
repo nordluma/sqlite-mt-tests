@@ -70,8 +70,7 @@ impl DB {
     }
 
     async fn select_all_users(&self) -> Result<Vec<DbUser>> {
-        let users = self
-            .conn
+        self.conn
             .call(|conn| {
                 let mut stmt = conn.prepare("SELECT * FROM users")?;
                 let rows = stmt
@@ -80,9 +79,7 @@ impl DB {
 
                 Ok(rows)
             })
-            .await;
-
-        users
+            .await
     }
 
     async fn delete_all_users(&self) -> Result<()> {
@@ -210,7 +207,7 @@ async fn batch_insertion(
     users: Vec<User<'_>>,
 ) -> anyhow::Result<()> {
     for user in users {
-        if let Ok(_) = connection.insert(user).await {
+        if connection.insert(user).await.is_ok() {
             println!("{} inserted: {:?}", worker_name, user)
         }
     }
